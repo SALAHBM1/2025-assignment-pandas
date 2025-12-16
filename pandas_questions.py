@@ -28,8 +28,13 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    merged = pd.merge(departments,regions, left_on='region_code', right_on='code')
-    merged = merged.rename(columns={'code_x':'code_dep', 'name_x':'name_dep', 'code_y':'code_reg', 'name_y':'name_reg'})
+    merged = pd.merge(
+        departments, regions, left_on='region_code', right_on='code')
+    merged = merged.rename(
+        columns={'code_x': 'code_dep',
+                 'name_x': 'name_dep',
+                 'code_y': 'code_reg',
+                 'name_y': 'name_reg'})
     merged = merged[['code_reg', 'name_reg', 'code_dep', 'name_dep']]
     return merged
 
@@ -45,9 +50,13 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     """
 
     filtered_ref = referendum[~referendum['Department code'].str.contains('Z')]
-    filtered_rad = regions_and_departments[~regions_and_departments['code_dep'].str.contains('Z')]
-    filtered_rad['code_dep'] = filtered_rad['code_dep'].str.replace(r'^0(\d)$', r'\1', regex=True)
-    merged = pd.merge(filtered_rad,filtered_ref,'right', right_on='Department code', left_on='code_dep')
+    filtered_rad = regions_and_departments[
+        ~regions_and_departments['code_dep'].str.contains('Z')]
+    filtered_rad['code_dep'] = filtered_rad['code_dep'].str.replace(
+        r'^0(\d)$', r'\1', regex=True)
+    merged = pd.merge(
+        filtered_rad, filtered_ref,
+        'right', right_on='Department code', left_on='code_dep')
     return merged
 
 
@@ -78,9 +87,12 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     gdf = gpd.read_file('data/regions.geojson')
-    merged = gdf.merge(referendum_result_by_regions, left_on='code', right_on='code_reg')
-    merged['ratio'] = merged['Choice A'] / (merged['Choice A'] + merged['Choice B'])
-    ax = merged.plot(column='ratio', cmap='OrRd', legend=True, edgecolor='black')
+    merged = gdf.merge(
+        referendum_result_by_regions, left_on='code', right_on='code_reg')
+    merged['ratio'] = merged['Choice A'] / (
+        merged['Choice A'] + merged['Choice B'])
+    ax = merged.plot(
+        column='ratio', cmap='OrRd', legend=True, edgecolor='black')
     ax.set_title("Referendum Results by Region: Ratio of 'Choice A'")
     return merged
 
